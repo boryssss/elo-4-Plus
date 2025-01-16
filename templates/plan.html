@@ -1,0 +1,47 @@
+<table class="tabela_pozostale">
+    {% for row in zast %}
+    <tr class="tabela_zond_pozostale">
+        {% for poz in row %}
+        <td class="tabela_komurka">{{ poz }}</td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>
+
+<!--
+<table class="info_wszyscy">
+    <tr class="tabela_zond_pozostale">
+        <td class="tabela_komurka">Dzień: </td>
+        <td class="tabela_komurka"> </td>
+        <td class="tabela_komurka">Lekcja: </td>
+        <td class="tabela_komurka">Uwaga: </td>
+    </tr>
+</table>
+-->
+
+<table class="tabela">
+    <caption><h1>Plan {{ klasa.split(" ")[0] }}</h1></caption>
+    <tr class="tabela_tytul">
+        {% for poz in plan_tab[1] %}
+        <th>{{poz}}</th>
+        {% endfor %}
+    </tr>
+    {% for row in plan_tab[0] %}
+    <tr class="tabela_zond">
+        {% for poz in row %}
+            <td class="tabela_komurka">
+            {% for word in poz %}
+                {% if '{' in word %}
+                    <mark>{{ word }}</mark><br>
+                {% else %}
+                    {{ word }}
+                    {% if word != '' %}
+                        <br>
+                    {% endif %}
+                {% endif %}
+            {% endfor %}
+            </td>
+        {% endfor %}
+    </tr>
+    {% endfor %}
+</table>

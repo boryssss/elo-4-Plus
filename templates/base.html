@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width"> 
+    <meta name="keywords" content="lo4,elo4,4lo,4,lo,liceum,iv,ogólnokształcące,komisji,edukacji,narodowej,poznan,plan,zastępstwa,swojska,lekcje,rok"/>
+    <title>Zastępstwa</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+    <link rel="icon" type="image/ikonka" href="/static/ikonka.png">
+</head>
+<body class="body">
+    <header class="headerr">
+        <button class="home_b" hx-get="/home" hx-trigger="click" hx-target=".main">Strona Główna</button>
+        <button class="home_b" hx-get="/wiadomosci" hx-trigger="click" hx-target=".main">Wiadomości z zastępstwami</button>
+    </header>
+    <div class="koniec">
+        Uwaga: Wraz z dniem 18 stycznia 2025 roku strona z zastępstwami przestanie funkcjonować pod adresem <span class="link">elo4.pl</span>. Nadal będzie można z niej korzystać poprzez szkolną stronę (zakładka <i> Plan i zastępstwa </i>) lub pod nowym adresem <a class="link" href="http://swojska.lo4.poznan.pl:90/">swojska.lo4.poznan.pl:90</a>.
+    </div>
+    <img id="spin" class="my-indicator"  src="https://i.gifer.com/ZZ5H.gif">
+    <main class="main">
+    {% block content %}
+    {% endblock %}
+    </main>
+    <footer>
+        <p>Autorami projektu są Borys Furmańczak i Hubert Łazowy z 4D</p>
+    </footer>
+</body>
+</html>

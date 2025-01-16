@@ -1,0 +1,23 @@
+Data (RRMMDD) | Klasa/Klasy (Oddzielać ',')(Puste jeżeli dotyczy wszystkich) | Nr Lekcji (Puste jeżeli nie dotyczy konkretnej lekcji) | Uwaga | ODDZIELAĆ '_'
+250117_1A__Dzień kariery - zajęcia od l.1 do l.6 w sali 40
+250117_1B__Dzień kariery - zajęcia od l.1 do l.6 w sali 43
+250117_1D__Dzień kariery - zajęcia od l.1 do l.6 w sali 50
+250117_1G__Dzień kariery - zajęcia od l.1 do l.6 w sali 55
+250117_2A__Dzień kariery - zajęcia od l.1 do l.6 w sali 44
+250117_2B__Dzień kariery - zajęcia od l.1 do l.6 w sali 63
+250117_2C__Dzień kariery - zajęcia od l.1 do l.6 w sali 56
+250117_2D__Dzień kariery - zajęcia od l.1 do l.6 w sali 66
+250117_2E__Dzień kariery - zajęcia od l.1 do l.6 w sali 59
+250117_2F__Dzień kariery - zajęcia od l.1 do l.6 w sali 58
+250117_2G__Dzień kariery - zajęcia od l.1 do l.6 w sali 45
+250117_2H__Dzień kariery - zajęcia od l.1 do l.6 w sali 57
+250117_3A__Dzień kariery - zajęcia od l.1 do l.6 w sali 60
+250117_3B__Dzień kariery - zajęcia od l.1 do l.6 w sali 52
+250117_3D__Dzień kariery - zajęcia od l.1 do l.6 w sali 42
+250117_3F__Dzień kariery - zajęcia od l.1 do l.6 w sali 36
+250117_3G__Dzień kariery - zajęcia od l.1 do l.6 w sali 46
+250117_4A__Dzień kariery - zajęcia od l.1 do l.6 w sali 41
+250117_4B__Dzień kariery - zajęcia od l.1 do l.6 w sali 12
+250117_4D__Dzień kariery - zajęcia od l.1 do l.6 w sali 61
+250117_4F__Dzień kariery - zajęcia od l.1 do l.6 w sali 32
+250117_4G__Dzień kariery - zajęcia od l.1 do l.6 w sali 23
