@@ -1,5 +1,4 @@
 import re
-
 from funkcje import *
 import schedule
 import time
@@ -15,9 +14,12 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
     cookies_path = "dane.json"
     bot = await Client.startSession(cookies_path)
     time.sleep(5)
+    print('Logowanie')
     if await bot.isLoggedIn():
         lista_odbiorcow = await bot.fetchThreadList()
+        print(lista_odbiorcow)
         time.sleep(5)
+        print('Odbiorcy')
         for odbiorca in lista_odbiorcow:
             nick = odbiorca.nickname
             thread = odbiorca.uid
@@ -39,7 +41,7 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
                 else:
                     odbiorcy.append([thread, nick, 0, odbiorca.name])
 
-
+        print('Wysyłanie')
         time.sleep(10)
         for odbiorca in odbiorcy:
             uid = odbiorca[0]
@@ -50,10 +52,12 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
                 wiadomosc = zastepstwa[klasa]
                 if wiadomosc != 'Br.Zm':
                     print('Wysyłam - ', uid, name, datetime.now())
+                    print(wiadomosc)
                     await bot.sendMessage(wiadomosc, uid, ThreadType.USER)
                 else:
                     if czy_doslac == 1:
                         print('Wysyłam - warunek - ', name, uid, datetime.now())
+                        print(zastepstwa_bez[klasa])
                         await bot.sendMessage(zastepstwa_bez[klasa], uid, ThreadType.USER)
 
                     else:
@@ -61,11 +65,12 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
 
             time.sleep(3)
 
+        print('Stop')
         await bot.stopListening()
 
 
 def poniedzialek_piatek():
-    godziny = ['06:30', '07:00', '07:30', '07:55', '08:50', '09:45', '10:40', '11:45', '12:40', '13:35', '14:30', '15:25', '20:39']
+    godziny = ['06:30', '07:00', '07:30', '07:55', '08:50', '09:45', '10:40', '11:45', '12:40', '13:35', '14:30', '15:25']
     for hour in range(16, 22):
         godziny.append(f'{hour:02}:00')
         godziny.append(f'{hour:02}:30')
@@ -228,6 +233,7 @@ def odczyt_odbiorcy():
 
 
 def zastepstwa_calosc():
+    print('Start')
     klasy_kod = {}; schowek = {}
     klasy_lista = []; klasy_lista_final = []; klasy = []; nauczyciele = []; nauczyciele_schowel = [{}, {}, {}]
     przyciski = pobierz_przyciski(); przyciski = zrub_przyciski(przyciski)
@@ -264,12 +270,17 @@ def zastepstwa_calosc():
                 if wynik.status_code == 200:
                     teraz = datetime.now()
                     data = daty[i]
+                    print('Data: ', data)
                     data_r = datetime.strptime(data, '%y%m%d')
+                    print(data_r)
                     dzien_tygodnia_temp = data_r.weekday()
-                    if dzien_tygodnia_temp == teraz.weekday():
-                        if teraz.hour >= 8:
+                    if dzien_tygodnia_temp == teraz.weekday() or dzien_tygodnia_temp == 0:
+                        if teraz.hour >= 8 and teraz.weekday() != 6:
                             data_r += timedelta(days=1)
+
+                        print('Data_r: ', data_r)
                         dzien_tygodnia = data_r.weekday()
+                        print('Dzien tygodnia: ', dzien_tygodnia)
                         data = data_r.strftime('%y%m%d')
                         data_r = data_r.strftime('%d-%m-%y')
                         data_check = False
@@ -314,6 +325,7 @@ def zastepstwa_calosc():
     if zmiana:
         zapis_zastepstwa_plik(zastepstwa_wszystkie_klasy)
 
+    print('Wiadomosci')
     asyncio.run(wiadomosc(zastepstwa_klasa_zmienione, zastepstwa_wszystkie_klasy_d, klasy_same))
 
 
