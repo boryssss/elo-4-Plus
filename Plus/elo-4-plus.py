@@ -3,21 +3,22 @@ from funkcje import *
 import schedule
 import time
 import time
-from fbchat_muqit import Client, ThreadType
+from fbchat_muqit import Client, ThreadType, ThreadLocation
 import asyncio
 
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
+    now = datetime.today()
+    limit = 5 + now.day * 10
     odbiorcy = []
     cookies_path = "dane.json"
     bot = await Client.startSession(cookies_path)
     time.sleep(5)
     print('Logowanie')
     if await bot.isLoggedIn():
-        lista_odbiorcow = await bot.fetchThreadList()
-        print(lista_odbiorcow)
+        lista_odbiorcow = await bot.fetchThreadList(thread_location=ThreadLocation.INBOX)
         time.sleep(5)
         print('Odbiorcy')
         for odbiorca in lista_odbiorcow:
@@ -37,11 +38,35 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
             else:
                 if odbiorca.own_nickname is None:
                     await bot.changeNickname('Zastępstwa - LO4', '61571933631388', thread_id=thread)
+                    odbiorcy.append([thread, nick, 1, odbiorca.name])
 
                 else:
-                    odbiorcy.append([thread, nick, 0, odbiorca.name])
+                     odbiorcy.append([thread, nick, 0, odbiorca.name])
+
+        time.sleep(3)
+        print(f'Limit: {len(lista_odbiorcow)}/{limit}')
+        if len(lista_odbiorcow) <= limit:
+            print('Dodawanie')
+            lista_odbiorcow = await bot.fetchThreadList(thread_location=ThreadLocation.OTHER)
+            reszta = await bot.fetchThreadList(thread_location=ThreadLocation.PENDING)
+            for user in reszta:
+                lista_odbiorcow.append(user)
+
+            for odbiorca in lista_odbiorcow:
+                print(odbiorca)
+                thread = odbiorca.uid
+                wiadomosci = await bot.fetchThreadMessages(thread_id=thread)
+                time.sleep(3)
+                wiadomosc = wiadomosci[-1]
+                nick = wiadomosc.text
+                await bot.changeNickname(nick.upper(), thread, thread_id=thread)
+                odbiorcy.append([thread, nick, 1, odbiorca.name])
+                time.sleep(1)
+                await bot.sendMessage(nick, thread, ThreadType.USER)
+                time.sleep(2)
 
         print('Wysyłanie')
+        print(odbiorcy)
         time.sleep(10)
         for odbiorca in odbiorcy:
             uid = odbiorca[0]
@@ -52,12 +77,10 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
                 wiadomosc = zastepstwa[klasa]
                 if wiadomosc != 'Br.Zm':
                     print('Wysyłam - ', uid, name, datetime.now())
-                    print(wiadomosc)
                     await bot.sendMessage(wiadomosc, uid, ThreadType.USER)
                 else:
                     if czy_doslac == 1:
                         print('Wysyłam - warunek - ', name, uid, datetime.now())
-                        print(zastepstwa_bez[klasa])
                         await bot.sendMessage(zastepstwa_bez[klasa], uid, ThreadType.USER)
 
                     else:
@@ -70,10 +93,10 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
 
 
 def poniedzialek_piatek():
-    godziny = ['06:30', '07:00', '07:30', '07:55', '08:50', '09:45', '10:40', '11:45', '12:40', '13:35', '14:30', '15:25']
+    godziny = ['06:29', '06:59', '07:29', '07:54', '08:44', '09:39', '10:34', '11:39', '12:34', '13:29', '14:24', '15:19', '15:59']
     for hour in range(16, 22):
-        godziny.append(f'{hour:02}:00')
-        godziny.append(f'{hour:02}:30')
+        godziny.append(f'{hour:02}:29')
+        godziny.append(f'{hour:02}:59')
 
     for godzina in godziny:
         schedule.every().monday.at(godzina).do(zastepstwa_calosc)
@@ -84,10 +107,10 @@ def poniedzialek_piatek():
 
 
 def niedziela():
-    godziny = []
+    godziny = ['21:45']
     for hour in range(14, 24):
-        godziny.append(f'{hour}:30')
-        godziny.append(f'{hour}:00')
+        godziny.append(f'{hour}:29')
+        godziny.append(f'{hour}:59')
 
     for godzina in godziny:
         schedule.every().sunday.at(godzina).do(zastepstwa_calosc)
@@ -270,7 +293,6 @@ def zastepstwa_calosc():
                 if wynik.status_code == 200:
                     teraz = datetime.now()
                     data = daty[i]
-                    print('Data: ', data)
                     data_r = datetime.strptime(data, '%y%m%d')
                     print(data_r)
                     dzien_tygodnia_temp = data_r.weekday()
@@ -309,7 +331,7 @@ def zastepstwa_calosc():
             zastepstwa_koniec += f'\n{informacja}\n'
 
         if not not klasa_uwagi:
-            zastepstwa_koniec += f'\n\nUwaga:'
+            zastepstwa_koniec += f'\nUwaga:'
             for uwaga in klasa_uwagi:
                 zastepstwa_koniec += f'\n{uwaga}'
 
