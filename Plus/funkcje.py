@@ -4,9 +4,10 @@ from datetime import datetime, timedelta
 import asyncio
 import json
 
-
 zast_data = []
 lekcje_z_zastepstwami = []
+
+
 def plan_lekcji(res_content):
     soup = BeautifulSoup(res_content, 'html.parser')
     table = soup.find('table', {"class": "tabela"})
@@ -20,6 +21,7 @@ def plan_lekcji(res_content):
             rowex.append(cell_text)
         plan.append(rowex)
     return plan
+
 
 def zast_wszys(res_text):
     soup = BeautifulSoup(res_text, 'html.parser')
@@ -35,11 +37,12 @@ def zast_wszys(res_text):
             for cell in cells:
                 cell_text = cell.get_text(strip=True)
                 row_data.append(cell_text)
-            if row_data != ['','','',''] and row_data != ['',]:
+            if row_data != ['', '', '', ''] and row_data != ['', ]:
                 table_data.append(row_data)
         return table_data
 
-def zastempstwa_u(klasa,res_text,data):
+
+def zastempstwa_u(klasa, res_text, data):
     klasa_tabela = []
     tabela = zast_wszys(res_text)
     nauczy = ""
@@ -49,8 +52,8 @@ def zastempstwa_u(klasa,res_text,data):
 
     else:
         for row in tabela:
-            if len(row) > 1 and len(row[1]) > 1 and len(row[1])<4 :
-                if row[1] == klasa or row[1][:2] == klasa or row[1][0]+row[1][-1] == klasa:
+            if len(row) > 1 and len(row[1]) > 1 and len(row[1]) < 4:
+                if row[1] == klasa or row[1][:2] == klasa or row[1][0] + row[1][-1] == klasa:
                     if len(row[2]) == 3 or len(row[2]) == 2:
                         if row[2][1] == 'j' or row[2][0] == 'N':
                             row[2] = nauczy
@@ -66,7 +69,8 @@ def zastempstwa_u(klasa,res_text,data):
 
         return klasa_tabela
 
-def zastempstwa_n(klasa,res_text):
+
+def zastempstwa_n(klasa, res_text):
     klasa = klasa.split(".")[1]
     klasa_tabela = []
     tabela = zast_wszys(res_text)
@@ -79,12 +83,13 @@ def zastempstwa_n(klasa,res_text):
             klasa_tabela.append(row)
     return klasa_tabela
 
-def zastempstwa_i(klasa,res_text):
+
+def zastempstwa_i(klasa, res_text):
     klasa_tabela = []
     tabela = zast_wszys(res_text)
     klasa = klasa.upper()
     for row in tabela:
-        if len(row) > 1 and len(row[1]) > 1 and len(row[1])>3 :
+        if len(row) > 1 and len(row[1]) > 1 and len(row[1]) > 3:
             if row[1] == klasa:
                 if row[2] != '':
                     row[2] = "grupa: " + row[2] + " "
@@ -92,16 +97,17 @@ def zastempstwa_i(klasa,res_text):
 
     return klasa_tabela
 
+
 async def pobierz(dates, numerek, plan_l):
     loop = asyncio.get_event_loop()
     url1 = 'http://www.lo4.poznan.pl/zast/z2.php?plik=http%3A%2F%2Fswojska.lo4.poznan.pl%2Fzast%2F'
     url2 = '.xls'
     url = f"http://www.lo4.poznan.pl/plan/plan/plany/{numerek}.html"
-    future1 = loop.run_in_executor(None, requests.get, url1+dates[0]+url2)
-    future2 = loop.run_in_executor(None, requests.get, url1+dates[1]+url2)
-    future3 = loop.run_in_executor(None, requests.get, url1+dates[2]+url2)
-    future4 = loop.run_in_executor(None, requests.get, url1+dates[3]+url2)
-    future5 = loop.run_in_executor(None, requests.get, url1+dates[4]+url2)
+    future1 = loop.run_in_executor(None, requests.get, url1 + dates[0] + url2)
+    future2 = loop.run_in_executor(None, requests.get, url1 + dates[1] + url2)
+    future3 = loop.run_in_executor(None, requests.get, url1 + dates[2] + url2)
+    future4 = loop.run_in_executor(None, requests.get, url1 + dates[3] + url2)
+    future5 = loop.run_in_executor(None, requests.get, url1 + dates[4] + url2)
     future6 = loop.run_in_executor(None, requests.get, url)
     responese1 = await future1
     responese2 = await future2
@@ -116,11 +122,13 @@ async def pobierz(dates, numerek, plan_l):
     dates[3] = responese4
     dates[4] = responese5
 
+
 def pobierz_przyciski():
     url = f"http://www.lo4.poznan.pl/plan/plan/lista.html"
     przyciski = requests.get(url)
     return przyciski.content
-    
+
+
 def zrub_przyciski(przyciski):
     output = []
     soup = BeautifulSoup(przyciski, 'html.parser')
@@ -128,15 +136,15 @@ def zrub_przyciski(przyciski):
     for i in tables:
         temp = {}
         for j in i.find_all('option', value=True):
-            temp[j.get_text(strip=True)]=j['value']
-        output.append(temp)   
+            temp[j.get_text(strip=True)] = j['value']
+        output.append(temp)
     for i, tekst in enumerate(output[0]):
-        output[0][tekst] = "o" + output[0][tekst] 
+        output[0][tekst] = "o" + output[0][tekst]
     swap = {}
     for i, tekst in enumerate(output[1]):
         swap[tekst.split(" ")[0]] = "n" + output[1][tekst]
     output[1] = swap
-    
+
     output.pop(2)
     ind = {}
     for i, tekst in enumerate(output[0]):
@@ -146,32 +154,33 @@ def zrub_przyciski(przyciski):
     for tekst in ind:
         output[0].pop(tekst)
         swap[tekst.split(" ")[0]] = ind[tekst]
-    ind = swap 
+    ind = swap
     output.append(ind)
     return output
 
+
 def num_to_day(day):
     days = {
-        0:"Poniedziałek",
-        1:"Wtorek",
-        2:"Środa",
-        3:"Czwartek",
-        4:"Piątek",
-        5:"Sobota",
-        6:"Niedziela"
+        0: "Poniedziałek",
+        1: "Wtorek",
+        2: "Środa",
+        3: "Czwartek",
+        4: "Piątek",
+        5: "Sobota",
+        6: "Niedziela"
     }
     return days[day]
+
 
 def zast_and_plan(tekst):
     lekcje_z_zastepstwami.clear()
     klasa, numerek = tekst.split(" ")[0], tekst.split(" ")[1]
-    #dziś = datetime.strptime("2025-01-08 13:27:40.246215", "%Y-%m-%d %H:%M:%S.%f")
     dziś = datetime.now()
     zastempstaw = []
-    dates = ["","","","",""]
+    dates = ["", "", "", "", ""]
     daty = ["", "", "", "", ""]
     plan_l = []
-    case = 0 
+    case = 0
     if len(klasa) > 2:
         case = 2
     if numerek[0] == "n":
@@ -184,9 +193,9 @@ def zast_and_plan(tekst):
 
     daty = dates.copy()
     loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(loop) 
+    asyncio.set_event_loop(loop)
     loop.run_until_complete(pobierz(dates, numerek, plan_l))
-    wyniki = dates.copy()
+    wyniki = []
     for i, day in enumerate(dates):
         if day.content[-8::] != b'readable':
             if case == 0:
@@ -200,7 +209,7 @@ def zast_and_plan(tekst):
     plan = plan_lekcji(plan_l[0])
     for row in plan:
         for i in range(len(row)):
-            posss = ["",""]
+            posss = ["", ""]
             spacecount = 0
             for j in row[i]:
                 if j == ' ':
@@ -212,17 +221,22 @@ def zast_and_plan(tekst):
             row[i] = posss
 
     for i, day in enumerate(dates):
+        if day == 'None':
+            wyniki.append('BP')
+        else:
+            wyniki.append('P')
         lekcja_temp = ''
         lekcja_temp = num_to_day(i)
         if day != "None" and day != 'XXX':
             for lekcja in day:
                 if lekcja[0] != '' and int(lekcja[0]) > 0:
-                    if len(plan)-1 < int(lekcja[0]):
-                        for z in range(int(lekcja[0])-len(plan)):
-                            plan.append([[f'{len(plan)+z+1}', ''],['', ''],['', ''],['', ''],['', ''],['', ''],['', '']])
+                    if len(plan) - 1 < int(lekcja[0]):
+                        for z in range(int(lekcja[0]) - len(plan)):
+                            plan.append([[f'{len(plan) + z + 1}', ''], ['', ''], ['', ''], ['', ''], ['', ''], ['', ''],
+                                         ['', '']])
 
-                    akt_lekcja = plan[int(lekcja[0])-1][i+2]
-                    plan[int(lekcja[0])-1][i+2].append("{" + lekcja[2] + lekcja[3] + "}")
+                    akt_lekcja = plan[int(lekcja[0]) - 1][i + 2]
+                    plan[int(lekcja[0]) - 1][i + 2].append("{" + lekcja[2] + lekcja[3] + "}")
                     final_lekcja = [num_to_day(i), akt_lekcja, lekcja[0], lekcja[2] + lekcja[3]]
                     lekcje_z_zastepstwami.append(final_lekcja)
                 else:
@@ -242,6 +256,7 @@ def zast_and_plan(tekst):
     zapis()
     zast_data.clear()
     return lekcje_z_zastepstwami, wyniki, daty
+
 
 def zapis():
     for z in lekcje_z_zastepstwami:

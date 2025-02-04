@@ -60,6 +60,7 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
                 wiadomosc = wiadomosci[-1]
                 nick = wiadomosc.text
                 await bot.changeNickname(nick.upper(), thread, thread_id=thread)
+                await bot.changeNickname('Zastępstwa - LO4', '61571933631388', thread_id=thread)
                 odbiorcy.append([thread, nick, 1, odbiorca.name])
                 time.sleep(1)
                 await bot.sendMessage(nick, thread, ThreadType.USER)
@@ -76,7 +77,7 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
             if klasa in klasy:
                 wiadomosc = zastepstwa[klasa]
                 if wiadomosc != 'Br.Zm':
-                    print('Wysyłam - ', uid, name, datetime.now())
+                    print('Wysyłam - ', uid, klasa, name, datetime.now())
                     await bot.sendMessage(wiadomosc, uid, ThreadType.USER)
                 else:
                     if czy_doslac == 1:
@@ -88,15 +89,16 @@ async def wiadomosc(zastepstwa, zastepstwa_bez, klasy):
 
             time.sleep(3)
 
+        print(f'Limit: {len(odbiorcy)}/{limit}')
         print('Stop')
         await bot.stopListening()
 
 
 def poniedzialek_piatek():
-    godziny = ['06:29', '06:59', '07:29', '07:54', '08:44', '09:39', '10:34', '11:39', '12:34', '13:29', '14:24', '15:19', '15:59']
+    godziny = ['06:29', '06:59', '07:29', '07:54', '08:44', '09:39', '10:34', '11:39', '12:34', '13:29', '14:24', '15:19', '18:49']
     for hour in range(16, 22):
-        godziny.append(f'{hour:02}:29')
-        godziny.append(f'{hour:02}:59')
+        godziny.append(f'{hour}:00')
+        godziny.append(f'{hour}:30')
 
     for godzina in godziny:
         schedule.every().monday.at(godzina).do(zastepstwa_calosc)
@@ -289,24 +291,40 @@ def zastepstwa_calosc():
         klasa_1 = klasa.split(" ")[0]
         zast, wyniki, daty = zast_and_plan(klasa)
         if data_check is True:
-            for i, wynik in enumerate(wyniki):
-                if wynik.status_code == 200:
-                    teraz = datetime.now()
-                    data = daty[i]
-                    data_r = datetime.strptime(data, '%y%m%d')
-                    print(data_r)
-                    dzien_tygodnia_temp = data_r.weekday()
-                    if dzien_tygodnia_temp == teraz.weekday() or dzien_tygodnia_temp == 0:
-                        if teraz.hour >= 8 and teraz.weekday() != 6:
-                            data_r += timedelta(days=1)
+            print('$', wyniki, '$')
+            dzisiaj = datetime.now()
 
-                        print('Data_r: ', data_r)
-                        dzien_tygodnia = data_r.weekday()
-                        print('Dzien tygodnia: ', dzien_tygodnia)
-                        data = data_r.strftime('%y%m%d')
-                        data_r = data_r.strftime('%d-%m-%y')
-                        data_check = False
+            if dzisiaj.hour >= 8 and dzisiaj.weekday() != 5 and dzisiaj.weekday() != 6:
+                dzisiaj += timedelta(days=1)
+
+            dzien_tygodnia = dzisiaj.weekday()
+            if dzien_tygodnia == 5:
+                dzisiaj += timedelta(days=2)
+            elif dzien_tygodnia == 6:
+                dzisiaj += timedelta(days=1)
+
+            dzien_tygodnia = dzisiaj.weekday()
+            if wyniki[dzien_tygodnia] == 'BP':
+                i = dzien_tygodnia
+                d = 0
+                while True:
+                    if wyniki[i] == 'P':
+                        dzisiaj += timedelta(days=d)
                         break
+                    else:
+                        if i == 4:
+                            print('Brak daty')
+                            return
+                        else:
+                            i += 1
+                            d += 1
+
+            dzien_tygodnia = dzisiaj.weekday()
+            data = dzisiaj.strftime('%y%m%d')
+            data_r = dzisiaj.strftime('%d-%m-%y')
+            data_check = False
+            print(dzien_tygodnia, data, data_r)
+
 
         if data == '':
             return
